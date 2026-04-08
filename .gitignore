@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# IDE - PyCharm / IntelliJ IDEA
+.idea/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# Debian Package Build
+tapo-p115-control-pkg/
+*.deb
+
+# Arch Linux Package Build
+src/
+pkg/
+*.pkg.tar.zst
+
+# OS
+.DS_Store
+Thumbs.db
