@@ -7,10 +7,10 @@ PACKAGE_NAME = "tapo-p115-control"
 VERSION = "1.0.3"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
 DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
-# We'll use a virtual environment in /usr/share/tapo-p115-control/venv 
-# to avoid conflicts with system-wide python packages.
-# Added libxcb-cursor0 and other Qt6 dependencies to solve 'xcb' plugin issues.
-DEPENDS = "python3, python3-pip, python3-venv, libxcb-cursor0, libxcb-xinerama0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-shape0, libxcb-randr0, libxcb-xkb1, libxkbcommon-x11-0, libdbus-1-3"
+# Added libxcb-cursor0 and other Qt6 dependencies.
+# Using python3-pyside6 and python3-aiohttp from system packages.
+# Note: plugp100 and qasync might not be in standard repos, so we assume they are provided or handled.
+DEPENDS = "python3, python3-pyside6, python3-aiohttp, libxcb-cursor0, libxcb-xinerama0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-shape0, libxcb-randr0, libxcb-xkb1, libxkbcommon-x11-0, libdbus-1-3"
 SECTION = "utils"
 PRIORITY = "optional"
 ARCHITECTURE = "all"
@@ -40,22 +40,18 @@ Description: {DESCRIPTION}
     with open(f"{build_dir}/DEBIAN/control", "w", newline='\n') as f:
         f.write(control_content)
 
-    # 1a. Create the postinst script to install pip dependencies in a venv
-    postinst_content = f"""#!/bin/bash
+    # 1a. Create the prerm script to clean up the application directory
+    prerm_content = f"""#!/bin/bash
 set -e
-VENV_DIR="/usr/share/{PACKAGE_NAME}/venv"
-echo "Setting up virtual environment in $VENV_DIR..."
-python3 -m venv "$VENV_DIR"
-echo "Installing dependencies into virtual environment..."
-"$VENV_DIR/bin/pip" install --upgrade pip
-"$VENV_DIR/bin/pip" install PySide6 aiohttp plugp100 qasync --upgrade
-chown -R root:root "$VENV_DIR"
+if [ "$1" = "remove" ]; then
+    rm -rf "/usr/share/{PACKAGE_NAME}"
+fi
 exit 0
 """
-    postinst_path = f"{build_dir}/DEBIAN/postinst"
-    with open(postinst_path, "w", newline='\n') as f:
-        f.write(postinst_content)
-    os.chmod(postinst_path, 0o755)
+    prerm_path = f"{build_dir}/DEBIAN/prerm"
+    with open(prerm_path, "w", newline='\n') as f:
+        f.write(prerm_content)
+    os.chmod(prerm_path, 0o755)
 
     # 2. Copy the application files to /usr/share/tapo-p115-control
     # We copy main.py to /usr/share/tapo-p115-control/main.py
@@ -64,8 +60,8 @@ exit 0
     # 3. Create a launcher script in /usr/bin/tapo-p115-control
     launcher_path = f"{build_dir}/usr/bin/{PACKAGE_NAME}"
     launcher_content = f"""#!/bin/bash
-# Use the virtual environment's python to run the application
-/usr/share/{PACKAGE_NAME}/venv/bin/python /usr/share/{PACKAGE_NAME}/main.py "$@"
+# Use system python to run the application
+/usr/bin/python3 /usr/share/{PACKAGE_NAME}/main.py "$@"
 """
     with open(launcher_path, "w", newline='\n') as f:
         f.write(launcher_content)
