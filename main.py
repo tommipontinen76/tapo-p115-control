@@ -88,6 +88,15 @@ class TapoControlApp(QMainWindow):
         if sys.platform == "linux":
             self.style_combo = QComboBox()
             available_styles = QStyleFactory.keys()
+            # On Linux, try to prioritize GTK styles for Gnome/Cinnamon environments
+            if "GTK+" in available_styles:
+                # Reorder to put GTK+ first if available
+                available_styles.remove("GTK+")
+                available_styles.insert(0, "GTK+")
+            elif "gtk2" in available_styles:
+                 available_styles.remove("gtk2")
+                 available_styles.insert(0, "gtk2")
+                 
             self.style_combo.addItems(available_styles)
             # Try to find a good default or what's currently set
             current_style = QApplication.style().objectName().lower()
