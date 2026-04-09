@@ -43,13 +43,12 @@ Description: {DESCRIPTION}
     # postinst: install pip packages after the deb is unpacked
     pip_install_line = " ".join(PIP_PACKAGES)
     postinst_content = f"""#!/bin/bash
-set -e
-if [ "$1" = "configure" ]; then
-    echo "Installing Python dependencies via pip..."
-    pip3 install --break-system-packages {pip_install_line} || \
-        pip3 install {pip_install_line}
-fi
-exit 0
+    set -e
+    if [ "$1" = "configure" ]; then
+        echo "Installing Python dependencies via pip..."
+        pip3 install --break-system-packages --ignore-installed {pip_install_line}
+    fi
+    exit 0
 """
     postinst_path = f"{build_dir}/DEBIAN/postinst"
     with open(postinst_path, "w", newline='\n') as f:
