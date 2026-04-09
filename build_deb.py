@@ -29,7 +29,8 @@ PRIORITY = "optional"
 ARCHITECTURE = "amd64"
 
 # All bundled via pip into vendor/ -- none of these are in standard Ubuntu/Mint repos.
-PIP_BUNDLE = ["PySide6", "qasync", "plugp100"]
+# We use PySide6-Essentials to keep the package size manageable (excludes Addons like Qt3D, etc).
+PIP_BUNDLE = ["PySide6-Essentials", "qasync", "plugp100"]
 VENDOR_DIR = f"usr/share/{PACKAGE_NAME}/vendor"
 
 
@@ -139,9 +140,10 @@ Categories=Utility;
 """)
 
     # 6. Build the .deb
+    print(f"Building {PACKAGE_NAME}.deb (this may take a minute for compression)...")
     try:
         subprocess.run(["dpkg-deb", "--build", build_dir], check=True)
-        print(f"Successfully created {build_dir}.deb")
+        print(f"Successfully created {PACKAGE_NAME}.deb")
     except FileNotFoundError:
         print("Error: 'dpkg-deb' not found. Run this on a Debian-based system.")
     except subprocess.CalledProcessError as e:
