@@ -58,7 +58,7 @@ def build_exe(script_name, exe_name, noconsole=True):
         print(f"Error during PyInstaller execution for {exe_name}: {e}")
         sys.exit(1)
 
-    print(f"--- Moving Executable to Output Folder: {exe_name} ---")
+    print(f"--- Copying Executable to Output Folder: {exe_name} ---")
     dist_folder = project_root / "dist"
     # PyInstaller creates the exe with .exe extension on Windows
     # If on non-Windows, it might not have .exe but we are on Windows here.
@@ -76,12 +76,10 @@ def build_exe(script_name, exe_name, noconsole=True):
 
     if exe_path.exists():
         try:
-            if destination_path.exists():
-                destination_path.unlink()
-            shutil.move(str(exe_path), str(destination_path))
-            print(f"Successfully moved executable to: {destination_path}")
+            shutil.copy2(str(exe_path), str(destination_path))
+            print(f"Successfully copied executable to: {destination_path}")
         except Exception as e:
-            print(f"Error moving executable {exe_name}: {e}")
+            print(f"Error copying executable {exe_name}: {e}")
             sys.exit(1)
     else:
         print(f"Error: {exe_path} was not created.")
