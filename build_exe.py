@@ -58,14 +58,23 @@ def build_exe():
         print(f"Error during PyInstaller execution: {e}")
         sys.exit(1)
 
-    print("--- Moving Executable to Downloads ---")
+    print("--- Moving Executable to Output Folder ---")
     dist_folder = project_root / "dist"
     exe_path = dist_folder / exe_name
-    downloads_folder = get_downloads_folder()
-    destination_path = downloads_folder / exe_name
+    
+    # If CI_OUTPUT is set, use it; otherwise, use Downloads.
+    ci_output = os.environ.get("CI_OUTPUT")
+    if ci_output:
+        destination_path = Path(ci_output) / exe_name
+        os.makedirs(ci_output, exist_ok=True)
+    else:
+        downloads_folder = get_downloads_folder()
+        destination_path = downloads_folder / exe_name
 
     if exe_path.exists():
         try:
+            if destination_path.exists():
+                destination_path.unlink()
             shutil.move(str(exe_path), str(destination_path))
             print(f"Successfully moved executable to: {destination_path}")
         except Exception as e:

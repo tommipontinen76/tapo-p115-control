@@ -25,8 +25,40 @@ DEPENDS = (
 
 SECTION = "utils"
 PRIORITY = "optional"
+def get_architecture():
+    """Determine the package architecture by querying dpkg or falling back to platform.machine()."""
+    # 1. Environment variable override
+    if "DEB_ARCH" in os.environ:
+        return os.environ["DEB_ARCH"]
+
+    # 2. Query dpkg-architecture (the standard way)
+    try:
+        result = subprocess.run(
+            ["dpkg", "--print-architecture"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+
+    # 3. Fallback to platform.machine()
+    import platform
+    machine = platform.machine().lower()
+    if machine in ["x86_64", "amd64"]:
+        return "amd64"
+    elif machine in ["aarch64", "arm64", "armv8l"]:
+        return "arm64"
+    elif machine.startswith("armv7") or machine == "armhf":
+        return "armhf"
+    elif machine in ["i386", "i686"]:
+        return "i386"
+    return machine
+
+
 # PySide6 ships compiled .so files, so the package is architecture-specific.
-ARCHITECTURE = "amd64"
+ARCHITECTURE = get_architecture()
 
 # All bundled via pip into vendor/ -- none of these are in standard Ubuntu/Mint repos.
 # We use PySide6-Essentials to keep the package size manageable (excludes Addons like Qt3D, etc).
@@ -121,7 +153,7 @@ exit 0
     launcher_path = f"{build_dir}/usr/bin/{PACKAGE_NAME}"
     launcher_content = f"""#!/bin/bash
 export PYTHONPATH="/usr/share/{PACKAGE_NAME}/vendor:$PYTHONPATH"
-exec /usr/bin/python3 /usr/share/{PACKAGE_NAME}/main.py "$@"
+exec /usr/bin/python3 "/usr/share/{PACKAGE_NAME}/main.py" "$@"
 """
     with open(launcher_path, "w", newline='\n') as f:
         f.write(launcher_content)
@@ -140,10 +172,10 @@ Categories=Utility;
 """)
 
     # 6. Build the .deb
-    print(f"Building {PACKAGE_NAME}.deb (this may take a minute for compression)...")
+    print(f"Building {PACKAGE_NAME}_{VERSION}_{ARCHITECTURE}.deb (this may take a minute for compression)...")
     try:
-        subprocess.run(["dpkg-deb", "--build", build_dir], check=True)
-        print(f"Successfully created {PACKAGE_NAME}.deb")
+        subprocess.run(["dpkg-deb", "--build", build_dir, f"{PACKAGE_NAME}_{VERSION}_{ARCHITECTURE}.deb"], check=True)
+        print(f"Successfully created {PACKAGE_NAME}_{VERSION}_{ARCHITECTURE}.deb")
     except FileNotFoundError:
         print("Error: 'dpkg-deb' not found. Run this on a Debian-based system.")
     except subprocess.CalledProcessError as e:
