@@ -7,11 +7,11 @@ VERSION = "1.0.4"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
 DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
 
-# python3-pyside6 is the correct package name (the alternative was fictitious).
-# qasync and plugp100 are not in standard repos -- bundled via pip into the package instead.
+# python3-pyside6 is not in standard Ubuntu/Mint repos (pip-only).
+# python3-aiohttp is in repos but also bundled for version consistency.
+# All pip-only packages are vendored into the package; only system libs remain in DEPENDS.
 DEPENDS = (
     "python3, "
-    "python3-pyside6, "
     "python3-aiohttp, "
     "libxcb-cursor0, "
     "libxcb-xinerama0, "
@@ -28,10 +28,11 @@ DEPENDS = (
 
 SECTION = "utils"
 PRIORITY = "optional"
-ARCHITECTURE = "all"
+# PySide6 ships compiled .so files, so the package is architecture-specific.
+ARCHITECTURE = "amd64"
 
-# Packages not available in standard Debian/Ubuntu repos -- bundled into the .deb.
-PIP_BUNDLE = ["qasync", "plugp100"]
+# All bundled via pip into vendor/ -- none of these are in standard Ubuntu/Mint repos.
+PIP_BUNDLE = ["PySide6", "qasync", "plugp100"]
 VENDOR_DIR = f"usr/share/{PACKAGE_NAME}/vendor"
 
 
