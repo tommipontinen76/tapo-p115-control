@@ -31,3 +31,4 @@ pkg/
 # OS
 .DS_Store
 Thumbs.db
+.idea/workspace.xml
