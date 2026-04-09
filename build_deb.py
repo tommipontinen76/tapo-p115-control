@@ -4,12 +4,12 @@ import subprocess
 
 # Package metadata
 PACKAGE_NAME = "tapo-p115-control"
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
 DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
-# Some dependencies may not be in official Debian repos and should be installed via pip if not found.
-# Recommended: python3-pyside6, python3-aiohttp
-DEPENDS = "python3, python3-pip"
+# We'll use a virtual environment in /usr/share/tapo-p115-control/venv 
+# to avoid conflicts with system-wide python packages.
+DEPENDS = "python3, python3-pip, python3-venv"
 SECTION = "utils"
 PRIORITY = "optional"
 ARCHITECTURE = "all"
@@ -39,16 +39,16 @@ Description: {DESCRIPTION}
     with open(f"{build_dir}/DEBIAN/control", "w", newline='\n') as f:
         f.write(control_content)
 
-    # 1a. Create the postinst script to install pip dependencies
+    # 1a. Create the postinst script to install pip dependencies in a venv
     postinst_content = f"""#!/bin/bash
 set -e
-# Install dependencies if not already present.
-# Some users might have PySide6 as python3-pyside6.qtwidgets or similar, 
-# but if system packages are missing, we fall back to pip.
-# PEP 668 (externally-managed-environment) might block pip install unless --break-system-packages is used.
-echo "Checking and installing dependencies..."
-pip3 install PySide6 aiohttp plugp100 qasync --upgrade || \
-pip3 install PySide6 aiohttp plugp100 qasync --upgrade --break-system-packages || true
+VENV_DIR="/usr/share/{PACKAGE_NAME}/venv"
+echo "Setting up virtual environment in $VENV_DIR..."
+python3 -m venv "$VENV_DIR"
+echo "Installing dependencies into virtual environment..."
+"$VENV_DIR/bin/pip" install --upgrade pip
+"$VENV_DIR/bin/pip" install PySide6 aiohttp plugp100 qasync --upgrade
+chown -R root:root "$VENV_DIR"
 exit 0
 """
     postinst_path = f"{build_dir}/DEBIAN/postinst"
@@ -63,7 +63,8 @@ exit 0
     # 3. Create a launcher script in /usr/bin/tapo-p115-control
     launcher_path = f"{build_dir}/usr/bin/{PACKAGE_NAME}"
     launcher_content = f"""#!/bin/bash
-python3 /usr/share/{PACKAGE_NAME}/main.py "$@"
+# Use the virtual environment's python to run the application
+/usr/share/{PACKAGE_NAME}/venv/bin/python /usr/share/{PACKAGE_NAME}/main.py "$@"
 """
     with open(launcher_path, "w", newline='\n') as f:
         f.write(launcher_content)
@@ -92,8 +93,8 @@ Categories=Utility;
         print(f"Error building .deb package: {e}")
     finally:
         # Clean up the build directory
-        # shutil.rmtree(build_dir)
-        pass
+        if os.path.exists(build_dir):
+            shutil.rmtree(build_dir)
 
 if __name__ == "__main__":
     create_deb()
