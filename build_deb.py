@@ -3,16 +3,13 @@ import shutil
 import subprocess
 
 PACKAGE_NAME = "tapo-p115-control"
-VERSION = "1.0.4"
+VERSION = "1.0.5"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
 DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
 
-# python3-pyside6 is not in standard Ubuntu/Mint repos (pip-only).
-# python3-aiohttp is in repos but also bundled for version consistency.
 # All pip-only packages are vendored into the package; only system libs remain in DEPENDS.
 DEPENDS = (
     "python3, "
-    "python3-aiohttp, "
     "libxcb-cursor0, "
     "libxcb-xinerama0, "
     "libxcb-icccm4, "
@@ -38,6 +35,8 @@ VENDOR_DIR = f"usr/share/{PACKAGE_NAME}/vendor"
 
 def find_python3():
     """Return a python3 interpreter that has pip available."""
+    # We prefer the system's default python3 to ensure binary compatibility
+    # with the launcher script which uses /usr/bin/python3.
     candidates = ["python3", "python3.12", "python3.11", "python3.10"]
     for candidate in candidates:
         try:
@@ -65,7 +64,6 @@ def bundle_pip_packages(build_dir):
             [
                 python, "-m", "pip", "install",
                 "--target", vendor_path,
-                "--no-deps",          # avoid duplicating system packages
                 "--upgrade",
             ] + PIP_BUNDLE,
             check=True,
@@ -118,6 +116,7 @@ exit 0
     bundle_pip_packages(build_dir)
 
     # 4. Launcher -- prepends vendor dir to PYTHONPATH so bundled packages are found
+    # We use /usr/bin/python3 which is standard on Debian systems.
     launcher_path = f"{build_dir}/usr/bin/{PACKAGE_NAME}"
     launcher_content = f"""#!/bin/bash
 export PYTHONPATH="/usr/share/{PACKAGE_NAME}/vendor:$PYTHONPATH"
