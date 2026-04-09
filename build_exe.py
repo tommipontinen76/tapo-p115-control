@@ -4,18 +4,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-def get_downloads_folder():
-    """Returns the current user's Downloads folder path."""
-    if os.name == 'nt':
-        import winreg
-        sub_key = r'SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
-        downloads_guid = '{374DE290-123F-4565-9164-39C4925E467B}'
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_key) as key:
-            location = winreg.QueryValueEx(key, downloads_guid)[0]
-        return Path(location)
-    else:
-        return Path.home() / "Downloads"
-
 def build_exe(script_name, exe_name, noconsole=True):
     project_root = Path(__file__).parent.absolute()
     main_script = project_root / script_name
@@ -65,14 +53,10 @@ def build_exe(script_name, exe_name, noconsole=True):
     output_exe_name = f"{exe_name}.exe" if os.name == 'nt' else exe_name
     exe_path = dist_folder / output_exe_name
     
-    # If CI_OUTPUT is set, use it; otherwise, use Downloads.
-    ci_output = os.environ.get("CI_OUTPUT")
-    if ci_output:
-        destination_path = Path(ci_output) / output_exe_name
-        os.makedirs(ci_output, exist_ok=True)
-    else:
-        downloads_folder = get_downloads_folder()
-        destination_path = downloads_folder / output_exe_name
+    # Use output folder in project root by default
+    ci_output = os.environ.get("CI_OUTPUT", str(project_root / "output"))
+    destination_path = Path(ci_output) / output_exe_name
+    os.makedirs(ci_output, exist_ok=True)
 
     if exe_path.exists():
         try:
@@ -85,20 +69,7 @@ def build_exe(script_name, exe_name, noconsole=True):
         print(f"Error: {exe_path} was not created.")
         sys.exit(1)
 
-    print(f"--- Cleaning Up for {exe_name} ---")
-    # Clean up build artifacts
-    build_folder = project_root / "build"
-    spec_file = project_root / f"{exe_name}.spec"
-    
-    if build_folder.exists():
-        shutil.rmtree(build_folder)
-    if dist_folder.exists():
-        shutil.rmtree(dist_folder)
-    if spec_file.exists():
-        spec_file.unlink()
-    
-    print(f"Cleanup finished for {exe_name}.")
-    print(f"Build complete! Your executable is in {destination_path}")
+    print(f"Build complete for {exe_name}! Your executable is in {destination_path}")
 
 if __name__ == "__main__":
     # Build GUI version
