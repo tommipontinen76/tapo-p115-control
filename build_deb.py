@@ -1,7 +1,6 @@
 import os
 import shutil
 import subprocess
-import sys
 
 PACKAGE_NAME = "tapo-p115-control"
 VERSION = "1.0.4"
@@ -36,15 +35,34 @@ PIP_BUNDLE = ["qasync", "plugp100"]
 VENDOR_DIR = f"usr/share/{PACKAGE_NAME}/vendor"
 
 
+def find_python3():
+    """Return a python3 interpreter that has pip available."""
+    candidates = ["python3", "python3.12", "python3.11", "python3.10"]
+    for candidate in candidates:
+        try:
+            result = subprocess.run(
+                [candidate, "-m", "pip", "--version"],
+                capture_output=True,
+            )
+            if result.returncode == 0:
+                return candidate
+        except FileNotFoundError:
+            continue
+    raise RuntimeError(
+        "No python3 with pip found. Install pip with: sudo apt install python3-pip"
+    )
+
+
 def bundle_pip_packages(build_dir):
     """Download PIP_BUNDLE packages into the vendor directory inside the package tree."""
     vendor_path = os.path.join(build_dir, VENDOR_DIR)
     os.makedirs(vendor_path, exist_ok=True)
-    print(f"Bundling pip packages into {vendor_path}: {PIP_BUNDLE}")
+    python = find_python3()
+    print(f"Using {python} to bundle {PIP_BUNDLE} into {vendor_path}")
     try:
         subprocess.run(
             [
-                sys.executable, "-m", "pip", "install",
+                python, "-m", "pip", "install",
                 "--target", vendor_path,
                 "--no-deps",          # avoid duplicating system packages
                 "--upgrade",
