@@ -5,17 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a4a2e0b1-295c-42bd-a43a-88d49637047c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/tapo-p115-control.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PKGBUILD" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build_deb.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build_exe.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build_deb.py" beforeDir="false" afterPath="$PROJECT_DIR$/build_deb.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build_exe.py" beforeDir="false" afterPath="$PROJECT_DIR$/build_exe.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +15,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="7" />
+    <option name="cachedIndexableFilesCount" value="11" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -89,7 +81,9 @@
       <option name="presentableId" value="Default" />
       <updated>1775685368438</updated>
       <workItem from="1775685369494" duration="2405000" />
-      <workItem from="1775688099938" duration="663000" />
+      <workItem from="1775688099938" duration="701000" />
+      <workItem from="1775688984787" duration="565000" />
+      <workItem from="1775723301745" duration="134000" />
     </task>
     <servers />
   </component>

@@ -39,12 +39,16 @@ def build_exe():
     # --noconsole: Hide the console window (it's a GUI app)
     # --name: Specify the name of the executable
     # --clean: Clean PyInstaller cache and remove temporary files before building
+    # --collect-all: Ensure all submodules and data for specific libraries are included
     cmd = [
         "pyinstaller",
         "--onefile",
         "--noconsole",
         "--name", "TapoP115Control",
         "--clean",
+        "--collect-all", "plugp100",
+        "--collect-all", "qasync",
+        "--hidden-import", "PySide6",
         str(main_script)
     ]
     

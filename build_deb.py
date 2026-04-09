@@ -4,12 +4,12 @@ import subprocess
 
 # Package metadata
 PACKAGE_NAME = "tapo-p115-control"
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
 DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
 # Some dependencies may not be in official Debian repos and should be installed via pip if not found.
 # Recommended: python3-pyside6, python3-aiohttp
-DEPENDS = "python3, python3-pyside6, python3-aiohttp, python3-pip"
+DEPENDS = "python3, python3-pip"
 SECTION = "utils"
 PRIORITY = "optional"
 ARCHITECTURE = "all"
@@ -36,9 +36,26 @@ Depends: {DEPENDS}
 Maintainer: {MAINTAINER}
 Description: {DESCRIPTION}
 """
-    with open(f"{build_dir}/DEBIAN/control", "w") as f:
+    with open(f"{build_dir}/DEBIAN/control", "w", newline='\n') as f:
         f.write(control_content)
-    
+
+    # 1a. Create the postinst script to install pip dependencies
+    postinst_content = f"""#!/bin/bash
+set -e
+# Install dependencies if not already present.
+# Some users might have PySide6 as python3-pyside6.qtwidgets or similar, 
+# but if system packages are missing, we fall back to pip.
+# PEP 668 (externally-managed-environment) might block pip install unless --break-system-packages is used.
+echo "Checking and installing dependencies..."
+pip3 install PySide6 aiohttp plugp100 qasync --upgrade || \
+pip3 install PySide6 aiohttp plugp100 qasync --upgrade --break-system-packages || true
+exit 0
+"""
+    postinst_path = f"{build_dir}/DEBIAN/postinst"
+    with open(postinst_path, "w", newline='\n') as f:
+        f.write(postinst_content)
+    os.chmod(postinst_path, 0o755)
+
     # 2. Copy the application files to /usr/share/tapo-p115-control
     # We copy main.py to /usr/share/tapo-p115-control/main.py
     shutil.copy("main.py", f"{build_dir}/usr/share/{PACKAGE_NAME}/main.py")
@@ -48,7 +65,7 @@ Description: {DESCRIPTION}
     launcher_content = f"""#!/bin/bash
 python3 /usr/share/{PACKAGE_NAME}/main.py "$@"
 """
-    with open(launcher_path, "w") as f:
+    with open(launcher_path, "w", newline='\n') as f:
         f.write(launcher_content)
     os.chmod(launcher_path, 0o755)
     
@@ -62,7 +79,7 @@ Icon=utilities-terminal
 Terminal=false
 Categories=Utility;
 """
-    with open(f"{build_dir}/usr/share/applications/{PACKAGE_NAME}.desktop", "w") as f:
+    with open(f"{build_dir}/usr/share/applications/{PACKAGE_NAME}.desktop", "w", newline='\n') as f:
         f.write(desktop_content)
     
     # 5. Build the .deb package
