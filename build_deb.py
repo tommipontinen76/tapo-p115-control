@@ -10,7 +10,7 @@ DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
 # Added libxcb-cursor0 and other Qt6 dependencies.
 # Using python3-pyside6 (or qtpy-pyside6 metapackage) and python3-aiohttp from system packages.
 # Note: plugp100 and qasync might not be in standard repos, so we assume they are provided or handled.
-DEPENDS = "python3, python3-qtpy-pyside6 | python3-pyside6, python3-aiohttp, libxcb-cursor0, libxcb-xinerama0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-shape0, libxcb-randr0, libxcb-xkb1, libxkbcommon-x11-0, libdbus-1-3"
+DEPENDS = "python3, python3-pyside6 | python3-qtpy-pyside6, python3-aiohttp, libxcb-cursor0, libxcb-xinerama0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-shape0, libxcb-randr0, libxcb-xkb1, libxkbcommon-x11-0, libdbus-1-3"
 SECTION = "utils"
 PRIORITY = "optional"
 ARCHITECTURE = "all"
