@@ -4,7 +4,7 @@ import logging
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QLabel, QLineEdit, QPushButton, QFormLayout, QMessageBox,
-    QGroupBox, QGridLayout, QCheckBox
+    QGroupBox, QGridLayout, QCheckBox, QComboBox, QStyleFactory
 )
 from PySide6.QtCore import Qt, QTimer, Signal, Slot, QSettings, QDateTime
 import aiohttp
@@ -84,6 +84,20 @@ class TapoControlApp(QMainWindow):
         self.spot_price_checkbox = QCheckBox("Use Spot Price (api.porssisahko.net)")
         self.spot_price_checkbox.toggled.connect(self.toggle_price_input)
         login_layout.addRow(self.spot_price_checkbox)
+
+        if sys.platform == "linux":
+            self.style_combo = QComboBox()
+            available_styles = QStyleFactory.keys()
+            self.style_combo.addItems(available_styles)
+            # Try to find a good default or what's currently set
+            current_style = QApplication.style().objectName().lower()
+            for i in range(self.style_combo.count()):
+                if self.style_combo.itemText(i).lower() == current_style:
+                    self.style_combo.setCurrentIndex(i)
+                    break
+            
+            self.style_combo.currentIndexChanged.connect(self.change_style)
+            login_layout.addRow("UI Style:", self.style_combo)
 
         self.connect_button = QPushButton("Connect")
         self.connect_button.clicked.connect(self.connect_device)
@@ -188,6 +202,14 @@ class TapoControlApp(QMainWindow):
         self.spot_price_checkbox.setChecked(use_spot)
         self.toggle_price_input(use_spot)
 
+        if sys.platform == "linux" and hasattr(self, 'style_combo'):
+            saved_style = settings.value("ui_style", "")
+            if saved_style:
+                index = self.style_combo.findText(saved_style)
+                if index >= 0:
+                    self.style_combo.setCurrentIndex(index)
+                    QApplication.setStyle(saved_style)
+
     def save_settings(self):
         settings = QSettings("TapoP115Control", "TapoControlApp")
         settings.setValue("ip", self.ip_input.text())
@@ -200,6 +222,13 @@ class TapoControlApp(QMainWindow):
         settings.setValue("elec_tax", self.elec_tax_input.text())
         settings.setValue("auto_tax", "true" if self.auto_tax_checkbox.isChecked() else "false")
         settings.setValue("use_spot", "true" if self.spot_price_checkbox.isChecked() else "false")
+        if sys.platform == "linux" and hasattr(self, 'style_combo'):
+            settings.setValue("ui_style", self.style_combo.currentText())
+
+    def change_style(self):
+        style_name = self.style_combo.currentText()
+        QApplication.setStyle(style_name)
+        self.save_settings()
 
     def toggle_price_input(self, checked):
         self.price_input.setEnabled(not checked)
