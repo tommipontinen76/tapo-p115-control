@@ -4,12 +4,13 @@ import subprocess
 
 # Package metadata
 PACKAGE_NAME = "tapo-p115-control"
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
 DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
 # We'll use a virtual environment in /usr/share/tapo-p115-control/venv 
 # to avoid conflicts with system-wide python packages.
-DEPENDS = "python3, python3-pip, python3-venv"
+# Added libxcb-cursor0 and other Qt6 dependencies to solve 'xcb' plugin issues.
+DEPENDS = "python3, python3-pip, python3-venv, libxcb-cursor0, libxcb-xinerama0, libxcb-icccm4, libxcb-image0, libxcb-keysyms1, libxcb-render-util0, libxcb-shape0, libxcb-randr0, libxcb-xkb1, libxkbcommon-x11-0, libdbus-1-3"
 SECTION = "utils"
 PRIORITY = "optional"
 ARCHITECTURE = "all"
