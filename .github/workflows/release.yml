@@ -61,17 +61,13 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Build DEB (ARM64 via QEMU)
-        uses: addnab/docker-run-action@v3
-        with:
-          image: arm64v8/ubuntu:22.04
-          options: --platform linux/arm64 -v ${{ github.workspace }}:/work
-          run: |
+        run: |
+          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}:/work arm64v8/ubuntu:22.04 /bin/bash -c "
             apt-get update
             apt-get install -y python3 python3-pip dpkg
             cd /work
             python3 build_deb.py
-            # Move the deb file to a predictable name for artifact upload if needed, 
-            # or just rely on the wildcard.
+          "
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
