@@ -28,7 +28,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
-          path: output/TapoP115Control.exe
+          path: |
+            output/TapoP115Control.exe
+            output/TapoP115Control-CLI.exe
 
   build-linux-amd64:
     runs-on: ubuntu-latest
@@ -45,8 +47,6 @@ jobs:
           sudo apt-get install -y dpkg
       - name: Build DEB
         run: python3 build_deb.py
-        env:
-          DEB_ARCH: amd64
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -68,7 +68,6 @@ jobs:
             apt-get update
             apt-get install -y python3 python3-pip dpkg
             cd /work
-            export DEB_ARCH=arm64
             python3 build_deb.py
             # Move the deb file to a predictable name for artifact upload if needed, 
             # or just rely on the wildcard.

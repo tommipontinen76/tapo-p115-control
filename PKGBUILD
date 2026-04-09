@@ -2,7 +2,7 @@
 pkgname=tapo-p115-control
 pkgver=1.0.0
 pkgrel=1
-pkgdesc="A GUI application to control Tapo P115 smart plugs"
+pkgdesc="A GUI and CLI application to control Tapo P115 smart plugs"
 arch=('any')
 url="https://github.com/tommi/tapo-p115-control"
 license=('MIT')
@@ -16,14 +16,19 @@ package() {
   
   # Install the main script
   install -Dm755 main.py "$pkgdir/usr/share/$pkgname/main.py"
+  install -Dm755 cli.py "$pkgdir/usr/share/$pkgname/cli.py"
   
-  # Create a launcher in /usr/bin
+  # Create launchers in /usr/bin
   mkdir -p "$pkgdir/usr/bin"
   cat <<EOF > "$pkgdir/usr/bin/$pkgname"
 #!/bin/bash
 exec python /usr/share/$pkgname/main.py "\$@"
 EOF
-  chmod 755 "$pkgdir/usr/bin/$pkgname"
+  cat <<EOF > "$pkgdir/usr/bin/$pkgname-cli"
+#!/bin/bash
+exec python /usr/share/$pkgname/cli.py "\$@"
+EOF
+  chmod 755 "$pkgdir/usr/bin/$pkgname" "$pkgdir/usr/bin/$pkgname-cli"
 
   # Install desktop entry
   install -Dm644 /dev/stdin "$pkgdir/usr/share/applications/$pkgname.desktop" <<EOF

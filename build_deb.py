@@ -5,7 +5,7 @@ import subprocess
 PACKAGE_NAME = "tapo-p115-control"
 VERSION = "1.0.5"
 MAINTAINER = "Tapo P115 Control Team <tommi@users.noreply.github.com>"
-DESCRIPTION = "A GUI application to control Tapo P115 smart plugs."
+DESCRIPTION = "A GUI and CLI application to control Tapo P115 smart plugs."
 
 # All pip-only packages are vendored into the package; only system libs remain in DEPENDS.
 DEPENDS = (
@@ -144,12 +144,15 @@ exit 0
 
     # 2. Copy application source
     shutil.copy("main.py", f"{build_dir}/usr/share/{PACKAGE_NAME}/main.py")
+    shutil.copy("cli.py", f"{build_dir}/usr/share/{PACKAGE_NAME}/cli.py")
 
     # 3. Bundle qasync + plugp100 into vendor/
     bundle_pip_packages(build_dir)
 
-    # 4. Launcher -- prepends vendor dir to PYTHONPATH so bundled packages are found
+    # 4. Launchers -- prepends vendor dir to PYTHONPATH so bundled packages are found
     # We use /usr/bin/python3 which is standard on Debian systems.
+    
+    # GUI Launcher
     launcher_path = f"{build_dir}/usr/bin/{PACKAGE_NAME}"
     launcher_content = f"""#!/bin/bash
 export PYTHONPATH="/usr/share/{PACKAGE_NAME}/vendor:$PYTHONPATH"
@@ -158,6 +161,16 @@ exec /usr/bin/python3 "/usr/share/{PACKAGE_NAME}/main.py" "$@"
     with open(launcher_path, "w", newline='\n') as f:
         f.write(launcher_content)
     os.chmod(launcher_path, 0o755)
+
+    # CLI Launcher
+    cli_launcher_path = f"{build_dir}/usr/bin/{PACKAGE_NAME}-cli"
+    cli_launcher_content = f"""#!/bin/bash
+export PYTHONPATH="/usr/share/{PACKAGE_NAME}/vendor:$PYTHONPATH"
+exec /usr/bin/python3 "/usr/share/{PACKAGE_NAME}/cli.py" "$@"
+"""
+    with open(cli_launcher_path, "w", newline='\n') as f:
+        f.write(cli_launcher_content)
+    os.chmod(cli_launcher_path, 0o755)
 
     # 5. .desktop entry
     with open(f"{build_dir}/usr/share/applications/{PACKAGE_NAME}.desktop", "w", newline='\n') as f:
