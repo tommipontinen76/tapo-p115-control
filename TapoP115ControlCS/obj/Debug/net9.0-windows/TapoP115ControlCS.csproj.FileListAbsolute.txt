@@ -1,6 +1,0 @@
-C:\Users\tommi\Documents\GitHub\tapo-p115-control\TapoP115ControlCS\obj\Debug\net9.0-windows\TapoP115ControlCS.csproj.AssemblyReference.cache
-C:\Users\tommi\Documents\GitHub\tapo-p115-control\TapoP115ControlCS\obj\Debug\net9.0-windows\MainWindow.g.cs
-C:\Users\tommi\Documents\GitHub\tapo-p115-control\TapoP115ControlCS\obj\Debug\net9.0-windows\TapoP115ControlCS\MainWindow.g.cs
-C:\Users\tommi\Documents\GitHub\tapo-p115-control\TapoP115ControlCS\obj\Debug\net9.0-windows\App.g.cs
-C:\Users\tommi\Documents\GitHub\tapo-p115-control\TapoP115ControlCS\obj\Debug\net9.0-windows\TapoP115ControlCS_MarkupCompile.cache
-C:\Users\tommi\Documents\GitHub\tapo-p115-control\TapoP115ControlCS\obj\Debug\net9.0-windows\TapoP115ControlCS_MarkupCompile.lref
