@@ -4,6 +4,25 @@ import subprocess
 import sys
 from pathlib import Path
 
+REQUIRED_PACKAGES = [
+    "pyinstaller",
+    "pyside6",
+    "aiohttp",
+    "qasync",
+    "plugp100",
+]
+
+def install_dependencies():
+    print("--- Installing dependencies ---")
+    for package in REQUIRED_PACKAGES:
+        try:
+            __import__(package.replace("-", "_"))
+            print(f"  {package} already installed.")
+        except ImportError:
+            print(f"  Installing {package}...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    print("--- Dependencies ready ---")
+
 def build_exe(script_name, exe_name, noconsole=True):
     project_root = Path(__file__).parent.absolute()
     main_script = project_root / script_name
@@ -12,13 +31,9 @@ def build_exe(script_name, exe_name, noconsole=True):
         print(f"Error: {main_script} not found.")
         sys.exit(1)
 
-    print(f"--- Checking for PyInstaller (Building {exe_name}) ---")
-    try:
-        import PyInstaller
-        print("PyInstaller found.")
-    except ImportError:
-        print("PyInstaller not found. Installing...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
+    install_dependencies()
+
+    print(f"--- Building Executable: {exe_name} ---")
 
     print(f"--- Building Executable: {exe_name} ---")
     # PyInstaller command:
@@ -34,7 +49,8 @@ def build_exe(script_name, exe_name, noconsole=True):
         "--clean",
         "--collect-all", "plugp100",
         "--collect-all", "qasync",
-        "--hidden-import", "PySide6",
+        "--collect-all", "PySide6",
+        "--collect-all", "aiohttp",
         str(main_script)
     ]
     if noconsole:
