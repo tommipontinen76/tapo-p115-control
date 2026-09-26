@@ -9,7 +9,7 @@ REQUIRED_PACKAGES = [
     "pyside6",
     "aiohttp",
     "qasync",
-    "plugp100",
+    "plugp100==5.1.5",
 ]
 
 def install_dependencies():
